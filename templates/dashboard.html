@@ -1,0 +1,376 @@
+
+{% extends "base.html"%}
+
+{% block title%}dashboard{% endblock %}
+
+
+        {% block contenido %}
+            <main class="container-fluid py-4 px-3 px-md-4">
+                <section class="row g-3 mb-4">
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card kpi-card">
+                            <div class="card-body">
+                                <p class="text-muted mb-1">Productos activos</p>
+                                <h3 class="h4 mb-0">248</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card kpi-card">
+                            <div class="card-body">
+                                <p class="text-muted mb-1">Stock total</p>
+                                <h3 class="h4 mb-0">12,490</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card kpi-card">
+                            <div class="card-body">
+                                <p class="text-muted mb-1">Bajo minimo</p>
+                                <h3 class="h4 mb-0 text-danger">17</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card kpi-card">
+                            <div class="card-body">
+                                <p class="text-muted mb-1">Movimientos hoy</p>
+                                <h3 class="h4 mb-0">63</h3>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="row g-3 mb-4">
+                    <div class="col-12 col-xl-8">
+                        <div class="card chart-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <h3 class="h5 mb-0">Grafica de movimientos semanales</h3>
+                                        <small class="text-muted">Entradas vs salidas por dia</small>
+                                    </div>
+                                    <span class="badge text-bg-light border">Semana 30</span>
+                                </div>
+                                <svg viewBox="0 0 700 260" class="w-100" role="img" aria-label="Grafica de movimientos">
+                                    <rect x="0" y="0" width="700" height="260" fill="#ffffff"></rect>
+                                    <line x1="50" y1="220" x2="660" y2="220" stroke="#cbd5e1" stroke-width="2"></line>
+                                    <line x1="50" y1="40" x2="50" y2="220" stroke="#cbd5e1" stroke-width="2"></line>
+                                    <polyline fill="none" stroke="#0ea5e9" stroke-width="4" points="70,170 150,150 230,165 310,120 390,110 470,138 550,95 630,88"></polyline>
+                                    <polyline fill="none" stroke="#2563eb" stroke-width="4" points="70,190 150,176 230,180 310,142 390,130 470,152 550,122 630,118"></polyline>
+                                    <circle cx="630" cy="88" r="5" fill="#0ea5e9"></circle>
+                                    <circle cx="630" cy="118" r="5" fill="#2563eb"></circle>
+                                    <text x="70" y="242" font-size="12" fill="#64748b">Lun</text>
+                                    <text x="150" y="242" font-size="12" fill="#64748b">Mar</text>
+                                    <text x="230" y="242" font-size="12" fill="#64748b">Mie</text>
+                                    <text x="310" y="242" font-size="12" fill="#64748b">Jue</text>
+                                    <text x="390" y="242" font-size="12" fill="#64748b">Vie</text>
+                                    <text x="470" y="242" font-size="12" fill="#64748b">Sab</text>
+                                    <text x="550" y="242" font-size="12" fill="#64748b">Dom</text>
+                                </svg>
+                                <div class="d-flex gap-4 mt-2">
+                                    <span class="small text-muted"><span class="mini-dot me-1" style="background:#0ea5e9;"></span>Entradas</span>
+                                    <span class="small text-muted"><span class="mini-dot me-1" style="background:#2563eb;"></span>Salidas</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-xl-4">
+                        <div class="card chart-card h-100">
+                            <div class="card-body">
+                                <h3 class="h5 mb-1">Distribucion por departamento</h3>
+                                <small class="text-muted">Participacion de movimientos</small>
+                                <div class="d-flex justify-content-center my-3">
+                                    <svg viewBox="0 0 220 220" width="220" height="220" role="img" aria-label="Grafica circular de departamentos">
+                                        <circle cx="110" cy="110" r="72" fill="none" stroke="#e2e8f0" stroke-width="30"></circle>
+                                        <circle cx="110" cy="110" r="72" fill="none" stroke="#1d4ed8" stroke-width="30" stroke-dasharray="180 452" transform="rotate(-90 110 110)"></circle>
+                                        <circle cx="110" cy="110" r="72" fill="none" stroke="#0ea5e9" stroke-width="30" stroke-dasharray="105 452" stroke-dashoffset="-180" transform="rotate(-90 110 110)"></circle>
+                                        <circle cx="110" cy="110" r="72" fill="none" stroke="#22c55e" stroke-width="30" stroke-dasharray="85 452" stroke-dashoffset="-285" transform="rotate(-90 110 110)"></circle>
+                                        <text x="110" y="104" font-size="14" fill="#475569" text-anchor="middle">Total</text>
+                                        <text x="110" y="124" font-size="18" fill="#0f172a" font-weight="700" text-anchor="middle">12,490</text>
+                                    </svg>
+                                </div>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between px-0"><span>Almacen</span><strong>40%</strong></li>
+                                    <li class="list-group-item d-flex justify-content-between px-0"><span>Produccion</span><strong>26%</strong></li>
+                                    <li class="list-group-item d-flex justify-content-between px-0"><span>Logistica</span><strong>19%</strong></li>
+                                    <li class="list-group-item d-flex justify-content-between px-0"><span>Calidad y compras</span><strong>15%</strong></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="row g-3 mb-4">
+                    <div class="col-12">
+                        <div class="card section-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                                    <h3 class="h5 mb-0">Campos maestros del sistema</h3>
+                                    <button class="btn btn-outline-primary btn-sm">Agregar nuevo campo</button>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-6 col-xl-3">
+                                        <label class="form-label">Codigo SKU</label>
+                                        <input type="text" class="form-control" placeholder="MAT-001">
+                                    </div>
+                                    <div class="col-12 col-md-6 col-xl-3">
+                                        <label class="form-label">Nombre producto</label>
+                                        <input type="text" class="form-control" placeholder="Hilo poliester">
+                                    </div>
+                                    <div class="col-12 col-md-6 col-xl-3">
+                                        <label class="form-label">Departamento</label>
+                                        <select class="form-select">
+                                            <option>Almacen</option>
+                                            <option>Produccion</option>
+                                            <option>Compras</option>
+                                            <option>Calidad</option>
+                                            <option>Logistica</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-6 col-xl-3">
+                                        <label class="form-label">Ubicacion</label>
+                                        <input type="text" class="form-control" placeholder="A-03-R2">
+                                    </div>
+                                    <div class="col-12 col-md-6 col-xl-3">
+                                        <label class="form-label">Unidad de medida</label>
+                                        <select class="form-select">
+                                            <option>Pieza</option>
+                                            <option>Kg</option>
+                                            <option>Caja</option>
+                                            <option>Rollo</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-6 col-xl-3">
+                                        <label class="form-label">Stock minimo</label>
+                                        <input type="number" class="form-control" value="100">
+                                    </div>
+                                    <div class="col-12 col-md-6 col-xl-3">
+                                        <label class="form-label">Stock maximo</label>
+                                        <input type="number" class="form-control" value="900">
+                                    </div>
+                                    <div class="col-12 col-md-6 col-xl-3">
+                                        <label class="form-label">Proveedor principal</label>
+                                        <select class="form-select">
+                                            <option>Textiles Lara</option>
+                                            <option>Avios del Centro</option>
+                                            <option>Comercial Delta</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="row g-3 mb-4">
+                    <div class="col-12 col-xl-7">
+                        <div class="card section-card h-100">
+                            <div class="card-body">
+                                <h3 class="h5 mb-3">Diseño de departamentos</h3>
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-6">
+                                        <div class="border rounded-3 p-3 h-100">
+                                            <h4 class="h6">Almacen</h4>
+                                            <p class="small text-muted mb-2">Recepcion, ubicaciones, stock general.</p>
+                                            <div class="d-flex gap-2 flex-wrap">
+                                                <span class="badge text-bg-light border">Recepcion</span>
+                                                <span class="badge text-bg-light border">Acomodo</span>
+                                                <span class="badge text-bg-light border">Conteo</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <div class="border rounded-3 p-3 h-100">
+                                            <h4 class="h6">Produccion</h4>
+                                            <p class="small text-muted mb-2">Consumos de orden y devoluciones.</p>
+                                            <div class="d-flex gap-2 flex-wrap">
+                                                <span class="badge text-bg-light border">Surtido OP</span>
+                                                <span class="badge text-bg-light border">Mermas</span>
+                                                <span class="badge text-bg-light border">Devolucion</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <div class="border rounded-3 p-3 h-100">
+                                            <h4 class="h6">Compras</h4>
+                                            <p class="small text-muted mb-2">Requisiciones, OC y seguimiento.</p>
+                                            <div class="d-flex gap-2 flex-wrap">
+                                                <span class="badge text-bg-light border">Solicitud</span>
+                                                <span class="badge text-bg-light border">Orden compra</span>
+                                                <span class="badge text-bg-light border">Recepcion OC</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <div class="border rounded-3 p-3 h-100">
+                                            <h4 class="h6">Calidad y logistica</h4>
+                                            <p class="small text-muted mb-2">Liberacion, embarques y devoluciones.</p>
+                                            <div class="d-flex gap-2 flex-wrap">
+                                                <span class="badge text-bg-light border">Inspeccion</span>
+                                                <span class="badge text-bg-light border">Packing</span>
+                                                <span class="badge text-bg-light border">Envio</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-xl-5">
+                        <div class="card section-card h-100">
+                            <div class="card-body">
+                                <h3 class="h5 mb-3">Usuarios visuales del login</h3>
+                                <div class="table-responsive">
+                                    <table class="table table-sm align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Usuario</th>
+                                                <th>Rol</th>
+                                                <th>Departamento</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>admin.inventario</td>
+                                                <td><span class="badge text-bg-primary">Administrador</span></td>
+                                                <td>General</td>
+                                                <td><span class="badge text-bg-success">Activo</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>personal.almacen</td>
+                                                <td><span class="badge text-bg-secondary">Personal</span></td>
+                                                <td>Almacen</td>
+                                                <td><span class="badge text-bg-success">Activo</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="alert alert-info mt-3 mb-0" role="alert">
+                                    Vista de demostracion: sin logica ni autenticacion real.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="row g-3 mb-4">
+                    <div class="col-12 col-lg-8">
+                        <div class="card section-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3 gap-2 flex-wrap">
+                                    <h3 class="h5 mb-0">Productos recientes</h3>
+                                    <div class="d-flex gap-2">
+                                        <input class="form-control form-control-sm" type="search" placeholder="Buscar SKU o nombre">
+                                        <button class="btn btn-sm btn-outline-secondary">Filtrar</button>
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>SKU</th>
+                                                <th>Producto</th>
+                                                <th>Departamento</th>
+                                                <th>Stock</th>
+                                                <th>Minimo</th>
+                                                <th>Estado</th>
+                                                <th class="text-end">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>MAT-001</td>
+                                                <td>Hilo Poliester 40/2</td>
+                                                <td>Almacen</td>
+                                                <td>560</td>
+                                                <td>200</td>
+                                                <td><span class="badge text-bg-success">Ok</span></td>
+                                                <td class="text-end"><button class="btn btn-sm btn-outline-primary">Editar</button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>MAT-014</td>
+                                                <td>Cierre metalico 25 cm</td>
+                                                <td>Produccion</td>
+                                                <td>90</td>
+                                                <td>120</td>
+                                                <td><span class="badge text-bg-danger">Bajo</span></td>
+                                                <td class="text-end"><button class="btn btn-sm btn-outline-primary">Editar</button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>PT-203</td>
+                                                <td>Playera cuello redondo M</td>
+                                                <td>Logistica</td>
+                                                <td>1,250</td>
+                                                <td>500</td>
+                                                <td><span class="badge text-bg-success">Ok</span></td>
+                                                <td class="text-end"><button class="btn btn-sm btn-outline-primary">Editar</button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-4">
+                        <div class="card section-card mb-3">
+                            <div class="card-body">
+                                <h3 class="h5 mb-3">Registrar movimiento</h3>
+                                <form>
+                                    <div class="mb-2">
+                                        <label class="form-label">Tipo</label>
+                                        <select class="form-select">
+                                            <option>Entrada</option>
+                                            <option>Salida</option>
+                                            <option>Ajuste</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">Departamento</label>
+                                        <select class="form-select">
+                                            <option>Almacen</option>
+                                            <option>Produccion</option>
+                                            <option>Compras</option>
+                                            <option>Calidad</option>
+                                            <option>Logistica</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">Producto</label>
+                                        <input type="text" class="form-control" placeholder="SKU o nombre">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">Cantidad</label>
+                                        <input type="number" class="form-control" min="1" value="1">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Referencia</label>
+                                        <input type="text" class="form-control" placeholder="OC-2026-0158">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">Guardar movimiento</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="card section-card">
+                            <div class="card-body">
+                                <h3 class="h5 mb-3">Alertas recientes</h3>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item px-0">MAT-014 por debajo del minimo</li>
+                                    <li class="list-group-item px-0">PT-090 sin movimientos en 15 dias</li>
+                                    <li class="list-group-item px-0">3 entradas pendientes de autorizacion</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        {% endblock %}
+
+{% block extra_js %}
+    <script src=""></script>
+{% endblock %}
