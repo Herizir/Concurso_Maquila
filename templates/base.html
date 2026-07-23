@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{% block title%}maquila{% endblock %}</title>
+    <meta name="description" content="Plantilla de sistema de inventario con Bootstrap">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    {% block extra_css %}{% endblock %}
+    <style>
+        body {
+            background: linear-gradient(135deg, #f4f6f9 0%, #eef3f8 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-shell {
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 308px;
+            background: #0f172a;
+            color: #d1d5db;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 1035;
+            overflow: hidden;
+        }
+
+        .brand-box {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 1rem;
+            margin-bottom: 1.1rem;
+        }
+
+        .sidebar-section {
+            padding: 0.85rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 0.9rem;
+            background: rgba(255, 255, 255, 0.02);
+            margin-bottom: 1rem;
+        }
+
+        .brand-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            background: linear-gradient(145deg, #0ea5e9, #2563eb);
+            color: #fff;
+        }
+
+        .menu-title {
+            letter-spacing: 0.06em;
+            font-size: 0.72rem;
+            color: #9ca3af;
+            text-transform: uppercase;
+            margin-bottom: 0.8rem;
+        }
+
+        .sidebar .nav-link {
+            color: #d1d5db;
+            border-radius: 0.6rem;
+            padding: 0.68rem 0.82rem;
+            font-weight: 500;
+            margin-bottom: 0.22rem;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: #fff;
+        }
+
+        .sidebar .nav-link.active {
+            background: linear-gradient(120deg, #2563eb, #1d4ed8);
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+        }
+
+        .department-list .list-group-item {
+            color: #cbd5e1;
+            background: transparent;
+            border-color: rgba(255, 255, 255, 0.06);
+            padding-left: 0;
+            padding-right: 0;
+            padding-top: 0.62rem;
+            padding-bottom: 0.62rem;
+        }
+
+        .workspace {
+            min-width: 0;
+            margin-left: 308px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .topbar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .kpi-card {
+            border: 0;
+            border-radius: 1rem;
+            box-shadow: 0 0.5rem 1.2rem rgba(15, 23, 42, 0.08);
+        }
+
+        .section-card {
+            border: 0;
+            border-radius: 1rem;
+            box-shadow: 0 0.4rem 1rem rgba(15, 23, 42, 0.06);
+        }
+
+        .chart-card {
+            border: 0;
+            border-radius: 1rem;
+            box-shadow: 0 0.6rem 1.4rem rgba(15, 23, 42, 0.08);
+        }
+
+        .mini-dot {
+            display: inline-block;
+            width: 0.65rem;
+            height: 0.65rem;
+            border-radius: 50%;
+        }
+
+        .table thead th {
+            white-space: nowrap;
+        }
+
+        @media (max-width: 991.98px) {
+            body {
+                overflow: auto;
+            }
+
+            .sidebar {
+                position: fixed;
+                inset: 0 auto 0 0;
+                z-index: 1045;
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .workspace {
+                width: 100%;
+                margin-left: 0;
+                height: auto;
+                overflow: visible;
+            }
+
+            .sidebar-backdrop {
+                position: fixed;
+                inset: 0;
+                background: rgba(15, 23, 42, 0.45);
+                z-index: 1040;
+                display: none;
+            }
+
+            .sidebar-backdrop.show {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-shell d-flex">
+        <aside id="sidebar" class="sidebar d-flex flex-column p-3 p-lg-4">
+            <div class="brand-box d-flex align-items-center gap-3 pb-3 mb-3">
+                <div class="brand-logo">IM</div>
+                <div>
+                    <h1 class="h5 text-white mb-0">Inventario Maquila</h1>
+                    <small class="text-secondary">Control operativo</small>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <p class="menu-title">Menu principal</p>
+                <ul class="nav nav-pills flex-column gap-1">
+                    <li class="nav-item"><a class="nav-link active" href="#">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Catalogo de productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Entradas de almacen</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Salidas y surtido</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Transferencias</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">inventario</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Conteos ciclicos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Compras y proveedores</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Reportes y KPI</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Usuarios y permisos</a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section mt-1">
+                <p class="menu-title">Departamentos</p>
+                <ul class="list-group list-group-flush department-list">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Almacen
+                        <span class="badge text-bg-primary rounded-pill">12</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Produccion
+                        <span class="badge text-bg-primary rounded-pill">8</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Compras
+                        <span class="badge text-bg-primary rounded-pill">5</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Calidad
+                        <span class="badge text-bg-primary rounded-pill">3</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Logistica
+                        <span class="badge text-bg-primary rounded-pill">6</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="mt-auto pt-3">
+                <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.06);">
+                    <p class="mb-1 text-white fw-semibold">Stock critico</p>
+                    <small class="text-secondary">17 productos requieren reabasto inmediato.</small>
+                </div>
+            </div>
+        </aside>
+
+        <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
+
+        <!--Termina sidebar -->
+
+
+
+        <div class="workspace flex-grow-1">
+            
+            <header class="topbar py-3 px-3 px-md-4 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <button id="toggleSidebar" class="btn btn-outline-primary d-lg-none" type="button">Menu</button>
+                    <div>
+                        <h2 class="h5 mb-0">Panel de Inventario</h2>
+                        <small class="text-muted">Control de stock, movimientos y alertas</small>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge text-bg-light border">Sucursal: Principal</span>
+                    <button class="btn btn-primary btn-sm">Nuevo producto</button>
+                    <button class="btn btn-outline-secondary btn-sm">Cerrar sesion</button>
+                </div>
+            </header>
+
+
+            <!--Termina topbar -->
+
+            
+            {% block contenido %}{% endblock %}
+
+
+
+        </div>
+             
+    </div>
+
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/sidebar.js')}}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
