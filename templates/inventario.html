@@ -50,6 +50,42 @@
         </div>
     </section>
 
+    <!-- RESUMEN DE EXISTENCIAS -->
+    <section class="row g-3 mb-4">
+        <div class="col-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Agotado</p>
+                    <h3 class="h4 mb-0 text-danger" id="kpiAgotado">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Bajo minimo</p>
+                    <h3 class="h4 mb-0 text-warning" id="kpiBajo">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Nivel medio</p>
+                    <h3 class="h4 mb-0 text-info" id="kpiMedio">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Nivel alto</p>
+                    <h3 class="h4 mb-0 text-success" id="kpiAlto">0</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- MATERIALS LIST -->
     <section class="row g-3 mb-4">
         <div class="col-12">
@@ -58,7 +94,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-3 gap-2 flex-wrap">
                         <div>
                             <h3 class="h5 mb-0">Materials List</h3>
-                            <small class="text-muted">Lista de materiales del producto (BOM)</small>
+                            <small class="text-muted">Lista de materiales del producto (BOM) &mdash; incluye existencias y estado de reabastecimiento</small>
                         </div>
                         <div class="d-flex gap-2 flex-wrap">
                             <input class="form-control form-control-sm" type="search" id="buscarMaterial" placeholder="Buscar por descripcion o P/N" style="min-width:220px;">
@@ -81,6 +117,16 @@
                                 </label>
                             </div>
                         </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small mb-1">Stock objetivo = Minimo &times;</label>
+                            <input type="number" step="0.1" class="form-control form-control-sm" id="factorStockObjetivo" value="2">
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 flex-wrap mb-3">
+                        <span class="small text-muted"><span class="mini-dot me-1" style="background:#dc3545;"></span>Agotado</span>
+                        <span class="small text-muted"><span class="mini-dot me-1" style="background:#fd7e14;"></span>Bajo</span>
+                        <span class="small text-muted"><span class="mini-dot me-1" style="background:#0dcaf0;"></span>Medio</span>
+                        <span class="small text-muted"><span class="mini-dot me-1" style="background:#198754;"></span>Alto</span>
                     </div>
 
                     <div class="table-responsive">
@@ -93,6 +139,10 @@
                                     <th style="width:120px;">Quantity</th>
                                     <th style="width:90px;">UoM</th>
                                     <th style="width:140px;">Case Quantity</th>
+                                    <th style="width:110px;">Existencia</th>
+                                    <th style="width:100px;">Minimo</th>
+                                    <th style="width:110px;">Estado</th>
+                                    <th style="width:110px;">Reabastecer</th>
                                     <th style="width:60px;" class="text-end">-</th>
                                 </tr>
                             </thead>
@@ -193,17 +243,17 @@
 (function () {
     // ---------- Datos iniciales: Materials List ----------
     const materialesIniciales = [
-        { no: 1, desc: 'PVC Tubing Clear (.047x.085x60")', pn: '20-001-4-L', qty: 1, uom: 'ea', caseQty: 50 },
-        { no: 2, desc: 'Legacy Enteral Male Connector', pn: '20-003-L', qty: 1, uom: 'ea', caseQty: 50 },
-        { no: 3, desc: 'Legacy Enteral Female Connector', pn: '20-004-L', qty: 1, uom: 'ea', caseQty: 50 },
-        { no: 4, desc: 'Slide Clamp', pn: '10-010-L', qty: 1, uom: 'ea', caseQty: 50 },
-        { no: 5, desc: 'Cyclohexanone (Bonding Agent)', pn: '10-014-L', qty: 0.0000075, uom: 'gl', caseQty: 0.000375 },
-        { no: 6, desc: 'Paper Tape 2"', pn: '10-015-L', qty: 0.0015, uom: 'ea', caseQty: 0.075 },
-        { no: 7, desc: '6" x 6" (15cm x 15cm) Plain Pouch', pn: '10-016-L', qty: 1, uom: 'ea', caseQty: 50 },
-        { no: 8, desc: 'IS60ENO Label Insert (insert Label)', pn: 'LBL-IS60ENO-PI', qty: 1, uom: 'ea', caseQty: 50 },
-        { no: 9, desc: 'Box 10" x 8" x 6"', pn: '10-019-L', qty: 0.02, uom: 'ea', caseQty: 1 },
-        { no: 9, desc: 'IS60ENO Shipper Box Label (Exterior Labels)', pn: 'LBL-IS60ENO-CI', qty: 0.02, uom: 'ea', caseQty: 1 },
-        { no: 9, desc: 'Enteral Extension Sets Instructions For Use', pn: 'NC-EES-IFU', qty: 0.02, uom: 'ea', caseQty: 1 }
+        { no: 1, desc: 'PVC Tubing Clear (.047x.085x60")', pn: '20-001-4-L', qty: 1, uom: 'ea', caseQty: 50, stock: 560, minimo: 200 },
+        { no: 2, desc: 'Legacy Enteral Male Connector', pn: '20-003-L', qty: 1, uom: 'ea', caseQty: 50, stock: 480, minimo: 200 },
+        { no: 3, desc: 'Legacy Enteral Female Connector', pn: '20-004-L', qty: 1, uom: 'ea', caseQty: 50, stock: 480, minimo: 200 },
+        { no: 4, desc: 'Slide Clamp', pn: '10-010-L', qty: 1, uom: 'ea', caseQty: 50, stock: 610, minimo: 200 },
+        { no: 5, desc: 'Cyclohexanone (Bonding Agent)', pn: '10-014-L', qty: 0.0000075, uom: 'gl', caseQty: 0.000375, stock: 0.9, minimo: 2 },
+        { no: 6, desc: 'Paper Tape 2"', pn: '10-015-L', qty: 0.0015, uom: 'ea', caseQty: 0.075, stock: 4, minimo: 10 },
+        { no: 7, desc: '6" x 6" (15cm x 15cm) Plain Pouch', pn: '10-016-L', qty: 1, uom: 'ea', caseQty: 50, stock: 700, minimo: 300 },
+        { no: 8, desc: 'IS60ENO Label Insert (insert Label)', pn: 'LBL-IS60ENO-PI', qty: 1, uom: 'ea', caseQty: 50, stock: 650, minimo: 300 },
+        { no: 9, desc: 'Box 10" x 8" x 6"', pn: '10-019-L', qty: 0.02, uom: 'ea', caseQty: 1, stock: 1250, minimo: 500 },
+        { no: 9, desc: 'IS60ENO Shipper Box Label (Exterior Labels)', pn: 'LBL-IS60ENO-CI', qty: 0.02, uom: 'ea', caseQty: 1, stock: 30, minimo: 50 },
+        { no: 9, desc: 'Enteral Extension Sets Instructions For Use', pn: 'NC-EES-IFU', qty: 0.02, uom: 'ea', caseQty: 1, stock: 25, minimo: 50 }
     ];
 
     const referenciasIniciales = [
@@ -235,6 +285,10 @@
                 </select>
             </td>
             <td><input type="number" step="any" class="form-control form-control-sm campo-case" value="${item.caseQty}"></td>
+            <td><input type="number" step="any" class="form-control form-control-sm campo-stock" value="${item.stock ?? 0}"></td>
+            <td><input type="number" step="any" class="form-control form-control-sm campo-min" value="${item.minimo ?? 0}"></td>
+            <td class="celda-estado"><span class="badge">-</span></td>
+            <td class="celda-reabastecer text-center">-</td>
             <td class="text-end"><button class="btn btn-sm btn-outline-danger btn-borrar-fila" title="Eliminar fila">&times;</button></td>
         `;
         return tr;
@@ -281,6 +335,55 @@
 
     function recalcularTodo() {
         cuerpoMateriales.querySelectorAll('tr').forEach(recalcularCaseQuantity);
+        recalcularExistencias();
+    }
+
+    function calcularEstadoFila(fila) {
+        const stockInput = fila.querySelector('.campo-stock');
+        const minInput = fila.querySelector('.campo-min');
+        const celdaEstado = fila.querySelector('.celda-estado');
+        const celdaReabastecer = fila.querySelector('.celda-reabastecer');
+        const factor = parseFloat(document.getElementById('factorStockObjetivo').value) || 2;
+
+        const stock = parseFloat(stockInput.value) || 0;
+        const minimo = parseFloat(minInput.value) || 0;
+        const objetivo = minimo * factor;
+
+        let estado, claseBadge;
+        if (stock <= 0) {
+            estado = 'Agotado';
+            claseBadge = 'text-bg-danger';
+        } else if (minimo > 0 && stock < minimo) {
+            estado = 'Bajo';
+            claseBadge = 'text-bg-warning text-dark';
+        } else if (minimo > 0 && stock < objetivo) {
+            estado = 'Medio';
+            claseBadge = 'text-bg-info text-dark';
+        } else {
+            estado = 'Alto';
+            claseBadge = 'text-bg-success';
+        }
+
+        celdaEstado.innerHTML = `<span class="badge ${claseBadge}">${estado}</span>`;
+
+        const faltante = objetivo - stock;
+        celdaReabastecer.textContent = (estado === 'Bajo' || estado === 'Agotado') && faltante > 0
+            ? '+' + (+faltante.toFixed(4))
+            : '-';
+
+        return estado;
+    }
+
+    function recalcularExistencias() {
+        const conteo = { Agotado: 0, Bajo: 0, Medio: 0, Alto: 0 };
+        cuerpoMateriales.querySelectorAll('tr').forEach(fila => {
+            const estado = calcularEstadoFila(fila);
+            conteo[estado] = (conteo[estado] || 0) + 1;
+        });
+        document.getElementById('kpiAgotado').textContent = conteo.Agotado;
+        document.getElementById('kpiBajo').textContent = conteo.Bajo;
+        document.getElementById('kpiMedio').textContent = conteo.Medio;
+        document.getElementById('kpiAlto').textContent = conteo.Alto;
     }
 
     function aplicarFiltros() {
@@ -324,6 +427,10 @@
         if (e.target.classList.contains('campo-qty')) {
             recalcularCaseQuantity(e.target.closest('tr'));
         }
+        if (e.target.classList.contains('campo-stock') || e.target.classList.contains('campo-min')) {
+            calcularEstadoFila(e.target.closest('tr'));
+            recalcularExistencias();
+        }
         if (e.target.classList.contains('campo-desc') || e.target.classList.contains('campo-pn')) {
             aplicarFiltros();
         }
@@ -338,6 +445,7 @@
 
     casePackInput.addEventListener('input', recalcularTodo);
     autoCalcCheck.addEventListener('change', recalcularTodo);
+    document.getElementById('factorStockObjetivo').addEventListener('input', recalcularExistencias);
     buscarMaterial.addEventListener('input', aplicarFiltros);
     filtroUoM.addEventListener('change', aplicarFiltros);
 
