@@ -17,6 +17,10 @@ def dashboard():
 @app.route("/inventario")
 def inventario():
     return render_template("inventario.html")
+
+@app.route("/produccion")
+def produccion():
+    return render_template("produccion.html")
     
 
 if __name__ == "__main__":

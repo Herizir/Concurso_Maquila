@@ -1,6 +1,6 @@
 # Concurso_Maquila
 
-Para empezar apoder correr el programa primeo deves de crear un entorno virtual con python
+Para empezar apoder correr el programa primero debes de crear un entorno virtual con python
 
     python -m venv venv
 
@@ -11,6 +11,6 @@ Una vez escho esto instalamos los siguiente:
 
 
 
-para corror el programa ponemos el siguiente comando en la terminal(Tiene que ponerse con el entorno vitual activado):
+para correr el programa ponemos el siguiente comando en la terminal(Tiene que ponerse con el entorno virtual activado):
 
-    flask runs
+    flask run

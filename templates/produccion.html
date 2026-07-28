@@ -1,0 +1,431 @@
+{% extends "base.html"%}
+
+{% block title %}produccion{% endblock %}
+
+
+{% block contenido%}
+<main class="container-fluid py-4 px-3 px-md-4">
+
+    <!-- Documento activo -->
+    <section class="row g-3 mb-4">
+        <div class="col-12">
+            <div class="card section-card">
+                <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <span class="badge text-bg-light border mb-1">Documento activo</span>
+                        <h3 class="h6 mb-0">IS60ENO &middot; Rev. B &middot; DCN 2425</h3>
+                        <small class="text-muted">Enteral Only Extension Set, 60" &mdash; lifeOutcomes, LLC</small>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="/inventario" class="btn btn-outline-secondary btn-sm">Ver BOM / DMR</a>
+                        <a href="/dashboard" class="btn btn-outline-secondary btn-sm">Ir al dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- KPIs -->
+    <section class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Ordenes activas</p>
+                    <h3 class="h4 mb-0" id="kpiOrdenesActivas">3</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Completadas hoy</p>
+                    <h3 class="h4 mb-0">2</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Pendientes por material</p>
+                    <h3 class="h4 mb-0 text-danger" id="kpiPendientesMaterial">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Eficiencia (OTD)</p>
+                    <h3 class="h4 mb-0 text-success">94%</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="row g-3 mb-4">
+        <!-- Nueva orden de produccion -->
+        <div class="col-12 col-xl-4">
+            <div class="card section-card h-100">
+                <div class="card-body">
+                    <h3 class="h5 mb-3">Nueva orden de produccion</h3>
+                    <form id="formNuevaOrden">
+                        <div class="mb-2">
+                            <label class="form-label">Part Number (BOM)</label>
+                            <select class="form-select" id="opPartNumber">
+                                <option>IS60ENO</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Cantidad a producir (unidades)</label>
+                            <input type="number" class="form-control" id="opCantidad" min="1" value="500">
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label">Turno</label>
+                                <select class="form-select" id="opTurno">
+                                    <option>Matutino</option>
+                                    <option>Vespertino</option>
+                                    <option>Nocturno</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Departamento</label>
+                                <select class="form-select" id="opDepartamento">
+                                    <option>Produccion</option>
+                                    <option>Empaque y etiquetado</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-2 mt-2">
+                            <label class="form-label">Fecha programada</label>
+                            <input type="date" class="form-control" id="opFecha">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Referencia (WO / Work Instruction)</label>
+                            <input type="text" class="form-control" id="opReferencia" placeholder="WO-2026-0158 / WI-001">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Crear orden y calcular materiales</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Consumo automatico de materiales segun BOM -->
+        <div class="col-12 col-xl-8">
+            <div class="card section-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                        <div>
+                            <h3 class="h5 mb-0">Consumo automatico de materiales (BOM)</h3>
+                            <small class="text-muted">Requerido = Quantity del BOM &times; unidades a producir</small>
+                        </div>
+                        <span class="badge text-bg-light border">Case Pack: 50</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0" id="tablaConsumo">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>P/N</th>
+                                    <th>Description / Part Name</th>
+                                    <th style="width:90px;">UoM</th>
+                                    <th style="width:110px;">Requerido</th>
+                                    <th style="width:130px;">Stock disponible</th>
+                                    <th style="width:100px;">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cuerpoConsumo">
+                                <!-- filas generadas por JS a partir del BOM -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seguimiento de etapas -->
+    <section class="row g-3 mb-4">
+        <div class="col-12">
+            <div class="card section-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <h3 class="h5 mb-0">Seguimiento de etapas &mdash; WO-2026-0158</h3>
+                        <small class="text-muted">Referencia: WI-001, SOP-103, SOP-104, SOP-108</small>
+                    </div>
+                    <div class="row g-3" id="tableroEtapas">
+                        <div class="col-12 col-md-3">
+                            <div class="border rounded-3 p-3 h-100 etapa" data-etapa="corte">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h4 class="h6 mb-0">Corte y armado</h4>
+                                    <span class="badge text-bg-success">Completa</span>
+                                </div>
+                                <p class="small text-muted mb-2">PVC Tubing, conectores y clamp (WI-001).</p>
+                                <button class="btn btn-sm btn-outline-secondary w-100" disabled>Etapa finalizada</button>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="border rounded-3 p-3 h-100 etapa" data-etapa="ensamble">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h4 class="h6 mb-0">Ensamble y bonding</h4>
+                                    <span class="badge text-bg-warning text-dark">En proceso</span>
+                                </div>
+                                <p class="small text-muted mb-2">Bonding con Cyclohexanone, sellado y paper tape.</p>
+                                <button class="btn btn-sm btn-outline-primary w-100 btn-avanzar-etapa">Marcar como completa</button>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="border rounded-3 p-3 h-100 etapa" data-etapa="empaque">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h4 class="h6 mb-0">Empaque y etiquetado</h4>
+                                    <span class="badge text-bg-secondary">Pendiente</span>
+                                </div>
+                                <p class="small text-muted mb-2">Pouch, insert label, box y shipper label (SOP-108).</p>
+                                <button class="btn btn-sm btn-outline-secondary w-100" disabled>Esperando ensamble</button>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="border rounded-3 p-3 h-100 etapa" data-etapa="calidad">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h4 class="h6 mb-0">Calidad y liberacion</h4>
+                                    <span class="badge text-bg-secondary">Pendiente</span>
+                                </div>
+                                <p class="small text-muted mb-2">Inspeccion final y liberacion (SOP-103, SOP-106).</p>
+                                <button class="btn btn-sm btn-outline-secondary w-100" disabled>Esperando empaque</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="row g-3 mb-4">
+        <!-- Ordenes de produccion recientes -->
+        <div class="col-12 col-xl-8">
+            <div class="card section-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <h3 class="h5 mb-0">Ordenes de produccion recientes</h3>
+                        <input class="form-control form-control-sm" type="search" id="buscarOrden" placeholder="Buscar WO o Part Number" style="max-width:220px;">
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="tablaOrdenes">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>WO</th>
+                                    <th>P/N</th>
+                                    <th>Cantidad</th>
+                                    <th>Turno</th>
+                                    <th>Departamento</th>
+                                    <th>Estado</th>
+                                    <th class="text-end">Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cuerpoOrdenes">
+                                <tr>
+                                    <td>WO-2026-0158</td>
+                                    <td>IS60ENO</td>
+                                    <td>500</td>
+                                    <td>Matutino</td>
+                                    <td>Produccion</td>
+                                    <td><span class="badge text-bg-warning text-dark">En proceso</span></td>
+                                    <td class="text-end">27/07/2026</td>
+                                </tr>
+                                <tr>
+                                    <td>WO-2026-0157</td>
+                                    <td>IS60ENO</td>
+                                    <td>300</td>
+                                    <td>Vespertino</td>
+                                    <td>Empaque y etiquetado</td>
+                                    <td><span class="badge text-bg-success">Completa</span></td>
+                                    <td class="text-end">26/07/2026</td>
+                                </tr>
+                                <tr>
+                                    <td>WO-2026-0156</td>
+                                    <td>IS60ENO</td>
+                                    <td>420</td>
+                                    <td>Matutino</td>
+                                    <td>Calidad</td>
+                                    <td><span class="badge text-bg-success">Liberada</span></td>
+                                    <td class="text-end">25/07/2026</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liberacion de calidad -->
+        <div class="col-12 col-xl-4">
+            <div class="card section-card h-100">
+                <div class="card-body">
+                    <h3 class="h5 mb-3">Liberacion de calidad</h3>
+                    <form id="formLiberacion">
+                        <div class="mb-2">
+                            <label class="form-label">Orden a liberar (WO)</label>
+                            <select class="form-select">
+                                <option>WO-2026-0158</option>
+                                <option>WO-2026-0157</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Resultado de inspeccion (SOP-103)</label>
+                            <select class="form-select">
+                                <option>Conforme</option>
+                                <option>No conforme (abrir NC, SOP-106)</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Liberado por</label>
+                            <input type="text" class="form-control" placeholder="Nombre del responsable de calidad">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Fecha de liberacion</label>
+                            <input type="date" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Registrar liberacion</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+(function () {
+    // ---------- Materiales del BOM activo (IS60ENO), igual que en inventario.html ----------
+    const bomActivo = [
+        { pn: '20-001-4-L', desc: 'PVC Tubing Clear (.047x.085x60")', uom: 'ea', qtyPorUnidad: 1, stock: 560 },
+        { pn: '20-003-L', desc: 'Legacy Enteral Male Connector', uom: 'ea', qtyPorUnidad: 1, stock: 480 },
+        { pn: '20-004-L', desc: 'Legacy Enteral Female Connector', uom: 'ea', qtyPorUnidad: 1, stock: 480 },
+        { pn: '10-010-L', desc: 'Slide Clamp', uom: 'ea', qtyPorUnidad: 1, stock: 610 },
+        { pn: '10-014-L', desc: 'Cyclohexanone (Bonding Agent)', uom: 'gl', qtyPorUnidad: 0.0000075, stock: 0.9 },
+        { pn: '10-015-L', desc: 'Paper Tape 2"', uom: 'ea', qtyPorUnidad: 0.0015, stock: 4 },
+        { pn: '10-016-L', desc: '6" x 6" (15cm x 15cm) Plain Pouch', uom: 'ea', qtyPorUnidad: 1, stock: 700 },
+        { pn: 'LBL-IS60ENO-PI', desc: 'IS60ENO Label Insert (insert Label)', uom: 'ea', qtyPorUnidad: 1, stock: 650 },
+        { pn: '10-019-L', desc: 'Box 10" x 8" x 6"', uom: 'ea', qtyPorUnidad: 0.02, stock: 1250 },
+        { pn: 'LBL-IS60ENO-CI', desc: 'IS60ENO Shipper Box Label (Exterior Labels)', uom: 'ea', qtyPorUnidad: 0.02, stock: 30 },
+        { pn: 'NC-EES-IFU', desc: 'Enteral Extension Sets Instructions For Use', uom: 'ea', qtyPorUnidad: 0.02, stock: 25 }
+    ];
+
+    const cuerpoConsumo = document.getElementById('cuerpoConsumo');
+    const opCantidad = document.getElementById('opCantidad');
+    const kpiPendientesMaterial = document.getElementById('kpiPendientesMaterial');
+
+    function pintarConsumo() {
+        const unidades = parseFloat(opCantidad.value) || 0;
+        cuerpoConsumo.innerHTML = '';
+        let insuficientes = 0;
+
+        bomActivo.forEach(mat => {
+            const requerido = +(mat.qtyPorUnidad * unidades).toFixed(6);
+            const suficiente = mat.stock >= requerido;
+            if (!suficiente) insuficientes++;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${mat.pn}</td>
+                <td>${mat.desc}</td>
+                <td>${mat.uom}</td>
+                <td>${requerido}</td>
+                <td>
+                    <input type="number" step="any" class="form-control form-control-sm campo-stock-disp" value="${mat.stock}" data-pn="${mat.pn}">
+                </td>
+                <td>${suficiente
+                    ? '<span class="badge text-bg-success">Suficiente</span>'
+                    : '<span class="badge text-bg-danger">Insuficiente</span>'}</td>
+            `;
+            cuerpoConsumo.appendChild(tr);
+        });
+
+        kpiPendientesMaterial.textContent = insuficientes;
+    }
+
+    cuerpoConsumo.addEventListener('input', (e) => {
+        if (e.target.classList.contains('campo-stock-disp')) {
+            const pn = e.target.dataset.pn;
+            const item = bomActivo.find(m => m.pn === pn);
+            if (item) {
+                item.stock = parseFloat(e.target.value) || 0;
+                pintarConsumo();
+            }
+        }
+    });
+
+    opCantidad.addEventListener('input', pintarConsumo);
+
+    // ---------- Nueva orden de produccion (demo) ----------
+    document.getElementById('formNuevaOrden').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const pn = document.getElementById('opPartNumber').value;
+        const cantidad = document.getElementById('opCantidad').value;
+        const turno = document.getElementById('opTurno').value;
+        const depto = document.getElementById('opDepartamento').value;
+        const fecha = document.getElementById('opFecha').value || new Date().toLocaleDateString('es-MX');
+        const referencia = document.getElementById('opReferencia').value || 'WO-nueva';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${referencia}</td>
+            <td>${pn}</td>
+            <td>${cantidad}</td>
+            <td>${turno}</td>
+            <td>${depto}</td>
+            <td><span class="badge text-bg-warning text-dark">En proceso</span></td>
+            <td class="text-end">${fecha}</td>
+        `;
+        document.getElementById('cuerpoOrdenes').prepend(tr);
+        pintarConsumo();
+    });
+
+    // ---------- Avanzar etapas del tablero ----------
+    document.getElementById('tableroEtapas').addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-avanzar-etapa')) {
+            const tarjeta = e.target.closest('.etapa');
+            const badge = tarjeta.querySelector('.badge');
+            badge.className = 'badge text-bg-success';
+            badge.textContent = 'Completa';
+            e.target.disabled = true;
+            e.target.classList.remove('btn-outline-primary');
+            e.target.classList.add('btn-outline-secondary');
+            e.target.textContent = 'Etapa finalizada';
+
+            const siguiente = tarjeta.nextElementSibling;
+            if (siguiente && siguiente.classList.contains('col-12')) {
+                const btnSiguiente = siguiente.querySelector('button');
+                if (btnSiguiente) {
+                    btnSiguiente.disabled = false;
+                    btnSiguiente.classList.remove('btn-outline-secondary');
+                    btnSiguiente.classList.add('btn-outline-primary', 'btn-avanzar-etapa');
+                    btnSiguiente.textContent = 'Marcar como completa';
+                    const badgeSiguiente = siguiente.querySelector('.badge');
+                    badgeSiguiente.className = 'badge text-bg-warning text-dark';
+                    badgeSiguiente.textContent = 'En proceso';
+                }
+            }
+        }
+    });
+
+    // ---------- Registrar liberacion de calidad (demo) ----------
+    document.getElementById('formLiberacion').addEventListener('submit', (e) => {
+        e.preventDefault();
+        alert('Vista de demostracion: sin logica de guardado real todavia.');
+    });
+
+    // ---------- Buscar en tabla de ordenes ----------
+    document.getElementById('buscarOrden').addEventListener('input', function () {
+        const texto = this.value.trim().toLowerCase();
+        document.querySelectorAll('#cuerpoOrdenes tr').forEach(fila => {
+            const contenido = fila.textContent.toLowerCase();
+            fila.style.display = contenido.includes(texto) ? '' : 'none';
+        });
+    });
+
+    // ---------- Inicializar ----------
+    pintarConsumo();
+})();
+</script>
+{% endblock %}
