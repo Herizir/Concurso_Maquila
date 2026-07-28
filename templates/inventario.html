@@ -4,11 +4,351 @@
 
 
 {% block contenido%}
+<main class="container-fluid py-4 px-3 px-md-4">
 
+    <!-- ENCABEZADO DEL DOCUMENTO -->
+    <section class="row g-3 mb-4">
+        <div class="col-12">
+            <div class="card section-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                        <div>
+                            <span class="badge text-bg-light border mb-2">Documento controlado</span>
+                            <h2 class="h4 mb-0">BILL OF MATERIALS / DMR TEMPLATE</h2>
+                            <small class="text-muted">lifeOutcomes, LLC</small>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">Imprimir / PDF</button>
+                            <button class="btn btn-primary btn-sm" id="btnGuardarDoc">Guardar cambios</button>
+                        </div>
+                    </div>
 
+                    <div class="row g-3">
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <label class="form-label">Part Number</label>
+                            <input type="text" class="form-control" id="campoPartNumber" value="IS60ENO">
+                        </div>
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <label class="form-label">Revision</label>
+                            <input type="text" class="form-control" id="campoRevision" value="B">
+                        </div>
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <label class="form-label">DCN</label>
+                            <input type="text" class="form-control" id="campoDCN" value="2425">
+                        </div>
+                        <div class="col-6 col-md-6 col-xl-4">
+                            <label class="form-label">Description</label>
+                            <input type="text" class="form-control" id="campoDescripcion" value="Enteral Only Extension Set, 60&quot;">
+                        </div>
+                        <div class="col-6 col-md-6 col-xl-2">
+                            <label class="form-label">Effective Date</label>
+                            <input type="date" class="form-control" id="campoFecha" value="2024-10-16">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MATERIALS LIST -->
+    <section class="row g-3 mb-4">
+        <div class="col-12">
+            <div class="card section-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3 gap-2 flex-wrap">
+                        <div>
+                            <h3 class="h5 mb-0">Materials List</h3>
+                            <small class="text-muted">Lista de materiales del producto (BOM)</small>
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <input class="form-control form-control-sm" type="search" id="buscarMaterial" placeholder="Buscar por descripcion o P/N" style="min-width:220px;">
+                            <select class="form-select form-select-sm" id="filtroUoM" style="width:auto;">
+                                <option value="">Todas las UoM</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 align-items-end mb-3">
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small mb-1">Case Pack (unidades por caja)</label>
+                            <input type="number" step="any" class="form-control form-control-sm" id="casePackSize" value="50">
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="form-check mt-4">
+                                <input class="form-check-input" type="checkbox" id="autoCalcCase" checked>
+                                <label class="form-check-label small" for="autoCalcCase">
+                                    Calcular Case Quantity automaticamente (Quantity &times; Case Pack)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="tablaMateriales">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:60px;">No.</th>
+                                    <th>Description / Part Name</th>
+                                    <th style="width:170px;">P/N</th>
+                                    <th style="width:120px;">Quantity</th>
+                                    <th style="width:90px;">UoM</th>
+                                    <th style="width:140px;">Case Quantity</th>
+                                    <th style="width:60px;" class="text-end">-</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cuerpoMateriales">
+                                <!-- filas generadas por JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <button class="btn btn-outline-primary btn-sm mt-3" id="btnAgregarFila">+ Agregar fila</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="row g-3 mb-4">
+        <!-- REFERENCE DOCUMENTS -->
+        <div class="col-12 col-xl-7">
+            <div class="card section-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <h3 class="h5 mb-0">Reference Documents</h3>
+                        <button class="btn btn-outline-primary btn-sm" id="btnAgregarRef">+ Agregar documento</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-2" id="tablaReferencias">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:35%;">Document Number</th>
+                                    <th>Document Title</th>
+                                    <th style="width:50px;" class="text-end">-</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cuerpoReferencias">
+                                <!-- filas generadas por JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="small text-muted fst-italic mb-0">Note: All other DMR items are within the referenced documents.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TECHNICAL SPECIFICATIONS -->
+        <div class="col-12 col-xl-5">
+            <div class="card section-card h-100">
+                <div class="card-body">
+                    <h3 class="h5 mb-3">Technical Specifications</h3>
+                    <div class="border rounded-3 p-4 text-center text-muted bg-light">
+                        N/A
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- APPROVALS -->
+    <section class="row g-3 mb-4">
+        <div class="col-12">
+            <div class="card section-card">
+                <div class="card-body">
+                    <h3 class="h5 mb-3">Approvals</h3>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Created By:</th>
+                                    <th style="width:140px;">Date:</th>
+                                    <th>Reviewed By:</th>
+                                    <th style="width:140px;">Date:</th>
+                                    <th>Approved By:</th>
+                                    <th style="width:140px;">Date:</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="text" class="form-control form-control-sm" value="Luis Padilla"></td>
+                                    <td><input type="date" class="form-control form-control-sm" value="2024-10-16"></td>
+                                    <td><input type="text" class="form-control form-control-sm" value="Ernesto Ortega"></td>
+                                    <td><input type="date" class="form-control form-control-sm" value="2024-10-16"></td>
+                                    <td><input type="text" class="form-control form-control-sm" value="Monica Echeveria"></td>
+                                    <td><input type="date" class="form-control form-control-sm" value="2024-10-16"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
 {% endblock %}
 
 
 {% block extra_js %}
+<script>
+(function () {
+    // ---------- Datos iniciales: Materials List ----------
+    const materialesIniciales = [
+        { no: 1, desc: 'PVC Tubing Clear (.047x.085x60")', pn: '20-001-4-L', qty: 1, uom: 'ea', caseQty: 50 },
+        { no: 2, desc: 'Legacy Enteral Male Connector', pn: '20-003-L', qty: 1, uom: 'ea', caseQty: 50 },
+        { no: 3, desc: 'Legacy Enteral Female Connector', pn: '20-004-L', qty: 1, uom: 'ea', caseQty: 50 },
+        { no: 4, desc: 'Slide Clamp', pn: '10-010-L', qty: 1, uom: 'ea', caseQty: 50 },
+        { no: 5, desc: 'Cyclohexanone (Bonding Agent)', pn: '10-014-L', qty: 0.0000075, uom: 'gl', caseQty: 0.000375 },
+        { no: 6, desc: 'Paper Tape 2"', pn: '10-015-L', qty: 0.0015, uom: 'ea', caseQty: 0.075 },
+        { no: 7, desc: '6" x 6" (15cm x 15cm) Plain Pouch', pn: '10-016-L', qty: 1, uom: 'ea', caseQty: 50 },
+        { no: 8, desc: 'IS60ENO Label Insert (insert Label)', pn: 'LBL-IS60ENO-PI', qty: 1, uom: 'ea', caseQty: 50 },
+        { no: 9, desc: 'Box 10" x 8" x 6"', pn: '10-019-L', qty: 0.02, uom: 'ea', caseQty: 1 },
+        { no: 9, desc: 'IS60ENO Shipper Box Label (Exterior Labels)', pn: 'LBL-IS60ENO-CI', qty: 0.02, uom: 'ea', caseQty: 1 },
+        { no: 9, desc: 'Enteral Extension Sets Instructions For Use', pn: 'NC-EES-IFU', qty: 0.02, uom: 'ea', caseQty: 1 }
+    ];
 
+    const referenciasIniciales = [
+        { num: 'WI-001', titulo: 'Mfg Work Instructions for Enteral Ext Sets' },
+        { num: 'DWG-IS60ENO', titulo: 'IS60ENO Drawing' },
+        { num: 'SOP-103', titulo: 'Receiving, In-Process and Shipping Inspection' },
+        { num: 'SOP-104', titulo: 'Production Work Orders Processing' },
+        { num: 'SOP-108', titulo: 'Label Control' },
+        { num: 'SOP-106', titulo: 'Control of Non-Conformances' }
+    ];
+
+    const cuerpoMateriales = document.getElementById('cuerpoMateriales');
+    const cuerpoReferencias = document.getElementById('cuerpoReferencias');
+    const casePackInput = document.getElementById('casePackSize');
+    const autoCalcCheck = document.getElementById('autoCalcCase');
+    const filtroUoM = document.getElementById('filtroUoM');
+    const buscarMaterial = document.getElementById('buscarMaterial');
+
+    function crearFilaMaterial(item) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><input type="text" class="form-control form-control-sm campo-no" value="${item.no}"></td>
+            <td><input type="text" class="form-control form-control-sm campo-desc" value="${item.desc}"></td>
+            <td><input type="text" class="form-control form-control-sm campo-pn" value="${item.pn}"></td>
+            <td><input type="number" step="any" class="form-control form-control-sm campo-qty" value="${item.qty}"></td>
+            <td>
+                <select class="form-select form-select-sm campo-uom">
+                    ${['ea', 'gl', 'kg', 'm', 'l', 'pza', 'caja'].map(u => `<option value="${u}" ${u === item.uom ? 'selected' : ''}>${u}</option>`).join('')}
+                </select>
+            </td>
+            <td><input type="number" step="any" class="form-control form-control-sm campo-case" value="${item.caseQty}"></td>
+            <td class="text-end"><button class="btn btn-sm btn-outline-danger btn-borrar-fila" title="Eliminar fila">&times;</button></td>
+        `;
+        return tr;
+    }
+
+    function crearFilaReferencia(item) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><input type="text" class="form-control form-control-sm campo-ref-num" value="${item.num}"></td>
+            <td><input type="text" class="form-control form-control-sm campo-ref-titulo" value="${item.titulo}"></td>
+            <td class="text-end"><button class="btn btn-sm btn-outline-danger btn-borrar-ref" title="Eliminar fila">&times;</button></td>
+        `;
+        return tr;
+    }
+
+    function pintarMateriales() {
+        cuerpoMateriales.innerHTML = '';
+        materialesIniciales.forEach(item => cuerpoMateriales.appendChild(crearFilaMaterial(item)));
+        actualizarOpcionesUoM();
+    }
+
+    function pintarReferencias() {
+        cuerpoReferencias.innerHTML = '';
+        referenciasIniciales.forEach(item => cuerpoReferencias.appendChild(crearFilaReferencia(item)));
+    }
+
+    function actualizarOpcionesUoM() {
+        const unidades = new Set();
+        cuerpoMateriales.querySelectorAll('.campo-uom').forEach(sel => unidades.add(sel.value));
+        const valorActual = filtroUoM.value;
+        filtroUoM.innerHTML = '<option value="">Todas las UoM</option>' +
+            Array.from(unidades).sort().map(u => `<option value="${u}">${u}</option>`).join('');
+        filtroUoM.value = valorActual;
+    }
+
+    function recalcularCaseQuantity(fila) {
+        if (!autoCalcCheck.checked) return;
+        const qtyInput = fila.querySelector('.campo-qty');
+        const caseInput = fila.querySelector('.campo-case');
+        const casePack = parseFloat(casePackInput.value) || 0;
+        const qty = parseFloat(qtyInput.value) || 0;
+        caseInput.value = +(qty * casePack).toFixed(7);
+    }
+
+    function recalcularTodo() {
+        cuerpoMateriales.querySelectorAll('tr').forEach(recalcularCaseQuantity);
+    }
+
+    function aplicarFiltros() {
+        const texto = buscarMaterial.value.trim().toLowerCase();
+        const uom = filtroUoM.value;
+        cuerpoMateriales.querySelectorAll('tr').forEach(fila => {
+            const desc = fila.querySelector('.campo-desc').value.toLowerCase();
+            const pn = fila.querySelector('.campo-pn').value.toLowerCase();
+            const filaUom = fila.querySelector('.campo-uom').value;
+            const coincideTexto = !texto || desc.includes(texto) || pn.includes(texto);
+            const coincideUom = !uom || filaUom === uom;
+            fila.style.display = (coincideTexto && coincideUom) ? '' : 'none';
+        });
+    }
+
+    // ---------- Eventos ----------
+    document.getElementById('btnAgregarFila').addEventListener('click', () => {
+        const nuevaFila = crearFilaMaterial({ no: materialesIniciales.length + 1, desc: '', pn: '', qty: 0, uom: 'ea', caseQty: 0 });
+        cuerpoMateriales.appendChild(nuevaFila);
+        actualizarOpcionesUoM();
+    });
+
+    document.getElementById('btnAgregarRef').addEventListener('click', () => {
+        cuerpoReferencias.appendChild(crearFilaReferencia({ num: '', titulo: '' }));
+    });
+
+    cuerpoMateriales.addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-borrar-fila')) {
+            e.target.closest('tr').remove();
+            actualizarOpcionesUoM();
+        }
+    });
+
+    cuerpoReferencias.addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-borrar-ref')) {
+            e.target.closest('tr').remove();
+        }
+    });
+
+    cuerpoMateriales.addEventListener('input', (e) => {
+        if (e.target.classList.contains('campo-qty')) {
+            recalcularCaseQuantity(e.target.closest('tr'));
+        }
+        if (e.target.classList.contains('campo-desc') || e.target.classList.contains('campo-pn')) {
+            aplicarFiltros();
+        }
+    });
+
+    cuerpoMateriales.addEventListener('change', (e) => {
+        if (e.target.classList.contains('campo-uom')) {
+            actualizarOpcionesUoM();
+            aplicarFiltros();
+        }
+    });
+
+    casePackInput.addEventListener('input', recalcularTodo);
+    autoCalcCheck.addEventListener('change', recalcularTodo);
+    buscarMaterial.addEventListener('input', aplicarFiltros);
+    filtroUoM.addEventListener('change', aplicarFiltros);
+
+    document.getElementById('btnGuardarDoc').addEventListener('click', () => {
+        alert('Vista de demostracion: sin logica de guardado real todavia.');
+    });
+
+    // ---------- Inicializar ----------
+    pintarMateriales();
+    pintarReferencias();
+    recalcularTodo();
+})();
+</script>
 {% endblock %}
