@@ -4,6 +4,27 @@ from config import DATABASE_PATH
 
 _esquema_listo = False
 
+# El documento es uno solo (BOM/DMR activo), de ahi el CHECK sobre el id.
+ESQUEMA_DOCUMENTO = """
+CREATE TABLE IF NOT EXISTS documento (
+    id             INTEGER PRIMARY KEY CHECK (id = 1),
+    part_number    TEXT    NOT NULL DEFAULT '',
+    revision       TEXT    NOT NULL DEFAULT '',
+    dcn            TEXT    NOT NULL DEFAULT '',
+    descripcion    TEXT    NOT NULL DEFAULT '',
+    fecha_efectiva TEXT    NOT NULL DEFAULT '',
+    case_pack      REAL    NOT NULL DEFAULT 50,
+    auto_calc_case INTEGER NOT NULL DEFAULT 1,
+    factor_stock   REAL    NOT NULL DEFAULT 2,
+    creado_por     TEXT    NOT NULL DEFAULT '',
+    creado_fecha   TEXT    NOT NULL DEFAULT '',
+    revisado_por   TEXT    NOT NULL DEFAULT '',
+    revisado_fecha TEXT    NOT NULL DEFAULT '',
+    aprobado_por   TEXT    NOT NULL DEFAULT '',
+    aprobado_fecha TEXT    NOT NULL DEFAULT ''
+)
+"""
+
 ESQUEMA_MATERIALES = """
 CREATE TABLE IF NOT EXISTS materiales (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,6 +38,22 @@ CREATE TABLE IF NOT EXISTS materiales (
     minimo        REAL    NOT NULL DEFAULT 0
 )
 """
+
+ESQUEMA_REFERENCIAS = """
+CREATE TABLE IF NOT EXISTS referencias (
+    id     INTEGER PRIMARY KEY AUTOINCREMENT,
+    numero TEXT NOT NULL DEFAULT '',
+    titulo TEXT NOT NULL DEFAULT ''
+)
+"""
+
+DOCUMENTO_SEMILLA = (
+    1, 'IS60ENO', 'B', '2425', 'Enteral Only Extension Set, 60"', '2024-10-16',
+    50, 1, 2,
+    'Luis Padilla', '2024-10-16',
+    'Ernesto Ortega', '2024-10-16',
+    'Monica Echeveria', '2024-10-16',
+)
 
 # BOM inicial del documento IS60ENO Rev. B (DCN 2425).
 # Orden: numero, descripcion, parte, cantidad, unidad, cantidad_caja, existencia, minimo
@@ -34,6 +71,15 @@ MATERIALES_SEMILLA = [
     (9, 'Enteral Extension Sets Instructions For Use', 'NC-EES-IFU', 0.02, 'ea', 1, 25, 50),
 ]
 
+REFERENCIAS_SEMILLA = [
+    ('WI-001', 'Mfg Work Instructions for Enteral Ext Sets'),
+    ('DWG-IS60ENO', 'IS60ENO Drawing'),
+    ('SOP-103', 'Receiving, In-Process and Shipping Inspection'),
+    ('SOP-104', 'Production Work Orders Processing'),
+    ('SOP-108', 'Label Control'),
+    ('SOP-106', 'Control of Non-Conformances'),
+]
+
 
 def obtener_conexion():
     """Devuelve una conexion a SQLite con filas accesibles por nombre de columna."""
@@ -44,15 +90,31 @@ def obtener_conexion():
 
 
 def _preparar(conexion):
-    """Crea el esquema y siembra el BOM inicial una sola vez por proceso."""
+    """Crea el esquema y siembra el documento inicial una sola vez por proceso."""
     global _esquema_listo
     if _esquema_listo:
         return
 
     with conexion:
+        conexion.execute(ESQUEMA_DOCUMENTO)
         conexion.execute(ESQUEMA_MATERIALES)
-        vacia = conexion.execute("SELECT COUNT(*) FROM materiales").fetchone()[0] == 0
-        if vacia:
+        conexion.execute(ESQUEMA_REFERENCIAS)
+
+        if _esta_vacia(conexion, "documento"):
+            conexion.execute(
+                """
+                INSERT INTO documento (
+                    id, part_number, revision, dcn, descripcion, fecha_efectiva,
+                    case_pack, auto_calc_case, factor_stock,
+                    creado_por, creado_fecha,
+                    revisado_por, revisado_fecha,
+                    aprobado_por, aprobado_fecha
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                DOCUMENTO_SEMILLA,
+            )
+
+        if _esta_vacia(conexion, "materiales"):
             conexion.executemany(
                 """
                 INSERT INTO materiales
@@ -62,4 +124,14 @@ def _preparar(conexion):
                 MATERIALES_SEMILLA,
             )
 
+        if _esta_vacia(conexion, "referencias"):
+            conexion.executemany(
+                "INSERT INTO referencias (numero, titulo) VALUES (?, ?)",
+                REFERENCIAS_SEMILLA,
+            )
+
     _esquema_listo = True
+
+
+def _esta_vacia(conexion, tabla):
+    return conexion.execute(f"SELECT COUNT(*) FROM {tabla}").fetchone()[0] == 0

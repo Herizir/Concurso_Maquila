@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, render_template, request
 
-from models import guardar_materiales, obtener_materiales
+import models
 
 app = Flask(__name__)
 
@@ -18,18 +18,21 @@ def dashboard():
 
 @app.route("/inventario")
 def inventario():
-    return render_template("inventario.html", materiales=obtener_materiales())
+    return render_template("inventario.html", **models.obtener_inventario())
 
 
 @app.route("/inventario/guardar", methods=["POST"])
 def guardar_inventario():
     datos = request.get_json(silent=True) or {}
-    materiales = datos.get("materiales")
 
-    if not isinstance(materiales, list):
-        return jsonify(error="Se esperaba una lista de materiales."), 400
+    if not isinstance(datos.get("documento"), dict):
+        return jsonify(error="Falta el encabezado del documento."), 400
+    if not isinstance(datos.get("materiales"), list):
+        return jsonify(error="Se esperaba la lista de materiales."), 400
+    if not isinstance(datos.get("referencias"), list):
+        return jsonify(error="Se esperaba la lista de documentos de referencia."), 400
 
-    return jsonify(materiales=guardar_materiales(materiales))
+    return jsonify(**models.guardar_inventario(datos))
 
 @app.route("/produccion")
 def produccion():

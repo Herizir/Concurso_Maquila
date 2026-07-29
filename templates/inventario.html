@@ -27,23 +27,23 @@
                     <div class="row g-3">
                         <div class="col-6 col-md-4 col-xl-2">
                             <label class="form-label">Part Number</label>
-                            <input type="text" class="form-control" id="campoPartNumber" value="IS60ENO">
+                            <input type="text" class="form-control" id="campoPartNumber" value="{{ documento.part_number }}">
                         </div>
                         <div class="col-6 col-md-4 col-xl-2">
                             <label class="form-label">Revision</label>
-                            <input type="text" class="form-control" id="campoRevision" value="B">
+                            <input type="text" class="form-control" id="campoRevision" value="{{ documento.revision }}">
                         </div>
                         <div class="col-6 col-md-4 col-xl-2">
                             <label class="form-label">DCN</label>
-                            <input type="text" class="form-control" id="campoDCN" value="2425">
+                            <input type="text" class="form-control" id="campoDCN" value="{{ documento.dcn }}">
                         </div>
                         <div class="col-6 col-md-6 col-xl-4">
                             <label class="form-label">Description</label>
-                            <input type="text" class="form-control" id="campoDescripcion" value="Enteral Only Extension Set, 60&quot;">
+                            <input type="text" class="form-control" id="campoDescripcion" value="{{ documento.descripcion }}">
                         </div>
                         <div class="col-6 col-md-6 col-xl-2">
                             <label class="form-label">Effective Date</label>
-                            <input type="date" class="form-control" id="campoFecha" value="2024-10-16">
+                            <input type="date" class="form-control" id="campoFecha" value="{{ documento.fecha_efectiva }}">
                         </div>
                     </div>
                 </div>
@@ -108,11 +108,11 @@
                     <div class="row g-2 align-items-end mb-3">
                         <div class="col-6 col-md-3">
                             <label class="form-label small mb-1">Case Pack (unidades por caja)</label>
-                            <input type="number" step="any" class="form-control form-control-sm" id="casePackSize" value="50">
+                            <input type="number" step="any" class="form-control form-control-sm" id="casePackSize" value="{{ documento.case_pack }}">
                         </div>
                         <div class="col-6 col-md-4">
                             <div class="form-check mt-4">
-                                <input class="form-check-input" type="checkbox" id="autoCalcCase" checked>
+                                <input class="form-check-input" type="checkbox" id="autoCalcCase" {% if documento.auto_calc_case %}checked{% endif %}>
                                 <label class="form-check-label small" for="autoCalcCase">
                                     Calcular Case Quantity automaticamente (Quantity &times; Case Pack)
                                 </label>
@@ -120,7 +120,7 @@
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label small mb-1">Stock objetivo = Minimo &times;</label>
-                            <input type="number" step="0.1" class="form-control form-control-sm" id="factorStockObjetivo" value="2">
+                            <input type="number" step="0.1" class="form-control form-control-sm" id="factorStockObjetivo" value="{{ documento.factor_stock }}">
                         </div>
                     </div>
                     <div class="d-flex gap-3 flex-wrap mb-3">
@@ -220,12 +220,12 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><input type="text" class="form-control form-control-sm" value="Luis Padilla"></td>
-                                    <td><input type="date" class="form-control form-control-sm" value="2024-10-16"></td>
-                                    <td><input type="text" class="form-control form-control-sm" value="Ernesto Ortega"></td>
-                                    <td><input type="date" class="form-control form-control-sm" value="2024-10-16"></td>
-                                    <td><input type="text" class="form-control form-control-sm" value="Monica Echeveria"></td>
-                                    <td><input type="date" class="form-control form-control-sm" value="2024-10-16"></td>
+                                    <td><input type="text" class="form-control form-control-sm" id="campoCreadoPor" value="{{ documento.creado_por }}"></td>
+                                    <td><input type="date" class="form-control form-control-sm" id="campoCreadoFecha" value="{{ documento.creado_fecha }}"></td>
+                                    <td><input type="text" class="form-control form-control-sm" id="campoRevisadoPor" value="{{ documento.revisado_por }}"></td>
+                                    <td><input type="date" class="form-control form-control-sm" id="campoRevisadoFecha" value="{{ documento.revisado_fecha }}"></td>
+                                    <td><input type="text" class="form-control form-control-sm" id="campoAprobadoPor" value="{{ documento.aprobado_por }}"></td>
+                                    <td><input type="date" class="form-control form-control-sm" id="campoAprobadoFecha" value="{{ documento.aprobado_fecha }}"></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -245,14 +245,7 @@
     // ---------- Materials List: llega desde la base de datos ----------
     let materiales = {{ materiales | tojson }};
 
-    const referenciasIniciales = [
-        { num: 'WI-001', titulo: 'Mfg Work Instructions for Enteral Ext Sets' },
-        { num: 'DWG-IS60ENO', titulo: 'IS60ENO Drawing' },
-        { num: 'SOP-103', titulo: 'Receiving, In-Process and Shipping Inspection' },
-        { num: 'SOP-104', titulo: 'Production Work Orders Processing' },
-        { num: 'SOP-108', titulo: 'Label Control' },
-        { num: 'SOP-106', titulo: 'Control of Non-Conformances' }
-    ];
+    let referencias = {{ referencias | tojson }};
 
     const cuerpoMateriales = document.getElementById('cuerpoMateriales');
     const cuerpoReferencias = document.getElementById('cuerpoReferencias');
@@ -296,6 +289,7 @@
 
     function crearFilaReferencia(item) {
         const tr = document.createElement('tr');
+        if (item.id != null) tr.dataset.id = item.id;
         tr.innerHTML = `
             <td><input type="text" class="form-control form-control-sm campo-ref-num" value="${escaparAtributo(item.num)}"></td>
             <td><input type="text" class="form-control form-control-sm campo-ref-titulo" value="${escaparAtributo(item.titulo)}"></td>
@@ -312,7 +306,7 @@
 
     function pintarReferencias() {
         cuerpoReferencias.innerHTML = '';
-        referenciasIniciales.forEach(item => cuerpoReferencias.appendChild(crearFilaReferencia(item)));
+        referencias.forEach(item => cuerpoReferencias.appendChild(crearFilaReferencia(item)));
     }
 
     function actualizarOpcionesUoM() {
@@ -458,6 +452,41 @@
         avisoGuardado.className = `small text-${tipo}`;
     }
 
+    // Los ids de los campos del encabezado, ajustes y firmas, en el mismo orden
+    // en que los espera la tabla documento.
+    const CAMPOS_DOCUMENTO = {
+        part_number: 'campoPartNumber',
+        revision: 'campoRevision',
+        dcn: 'campoDCN',
+        descripcion: 'campoDescripcion',
+        fecha_efectiva: 'campoFecha',
+        case_pack: 'casePackSize',
+        factor_stock: 'factorStockObjetivo',
+        creado_por: 'campoCreadoPor',
+        creado_fecha: 'campoCreadoFecha',
+        revisado_por: 'campoRevisadoPor',
+        revisado_fecha: 'campoRevisadoFecha',
+        aprobado_por: 'campoAprobadoPor',
+        aprobado_fecha: 'campoAprobadoFecha'
+    };
+
+    function recolectarDocumento() {
+        const documento = { auto_calc_case: autoCalcCheck.checked };
+        for (const [campo, id] of Object.entries(CAMPOS_DOCUMENTO)) {
+            documento[campo] = document.getElementById(id).value;
+        }
+        return documento;
+    }
+
+    // Refleja lo que el servidor guardo de verdad; si normalizo algun valor
+    // (un numero invalido, por ejemplo) el usuario lo ve en pantalla.
+    function aplicarDocumento(documento) {
+        for (const [campo, id] of Object.entries(CAMPOS_DOCUMENTO)) {
+            document.getElementById(id).value = documento[campo];
+        }
+        autoCalcCheck.checked = documento.auto_calc_case;
+    }
+
     function recolectarMateriales() {
         return Array.from(cuerpoMateriales.querySelectorAll('tr')).map(fila => ({
             id: fila.dataset.id ? Number(fila.dataset.id) : null,
@@ -472,6 +501,14 @@
         }));
     }
 
+    function recolectarReferencias() {
+        return Array.from(cuerpoReferencias.querySelectorAll('tr')).map(fila => ({
+            id: fila.dataset.id ? Number(fila.dataset.id) : null,
+            num: fila.querySelector('.campo-ref-num').value,
+            titulo: fila.querySelector('.campo-ref-titulo').value
+        }));
+    }
+
     btnGuardar.addEventListener('click', async () => {
         const textoOriginal = btnGuardar.textContent;
         btnGuardar.disabled = true;
@@ -482,15 +519,23 @@
             const respuesta = await fetch('/inventario/guardar', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ materiales: recolectarMateriales() })
+                body: JSON.stringify({
+                    documento: recolectarDocumento(),
+                    materiales: recolectarMateriales(),
+                    referencias: recolectarReferencias()
+                })
             });
 
             if (!respuesta.ok) {
                 throw new Error(`el servidor respondio ${respuesta.status}`);
             }
 
-            materiales = (await respuesta.json()).materiales;
+            const datos = await respuesta.json();
+            materiales = datos.materiales;
+            referencias = datos.referencias;
+            aplicarDocumento(datos.documento);
             pintarMateriales();
+            pintarReferencias();
             recalcularTodo();
             aplicarFiltros();
             mostrarAviso('Cambios guardados', 'success');
