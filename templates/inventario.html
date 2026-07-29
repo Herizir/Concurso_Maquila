@@ -261,13 +261,23 @@
     const filtroUoM = document.getElementById('filtroUoM');
     const buscarMaterial = document.getElementById('buscarMaterial');
 
+    // Las descripciones del BOM traen comillas dobles (6" x 6", Box 10" x 8" x 6").
+    // Sin escaparlas cierran el atributo value y el texto se pierde.
+    function escaparAtributo(valor) {
+        return String(valor ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+
     function crearFilaMaterial(item) {
         const tr = document.createElement('tr');
         if (item.id != null) tr.dataset.id = item.id;
         tr.innerHTML = `
-            <td><input type="text" class="form-control form-control-sm campo-no" value="${item.no}"></td>
-            <td><input type="text" class="form-control form-control-sm campo-desc" value="${item.desc}"></td>
-            <td><input type="text" class="form-control form-control-sm campo-pn" value="${item.pn}"></td>
+            <td><input type="text" class="form-control form-control-sm campo-no" value="${escaparAtributo(item.no)}"></td>
+            <td><input type="text" class="form-control form-control-sm campo-desc" value="${escaparAtributo(item.desc)}"></td>
+            <td><input type="text" class="form-control form-control-sm campo-pn" value="${escaparAtributo(item.pn)}"></td>
             <td><input type="number" step="any" class="form-control form-control-sm campo-qty" value="${item.qty}"></td>
             <td>
                 <select class="form-select form-select-sm campo-uom">
@@ -287,8 +297,8 @@
     function crearFilaReferencia(item) {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><input type="text" class="form-control form-control-sm campo-ref-num" value="${item.num}"></td>
-            <td><input type="text" class="form-control form-control-sm campo-ref-titulo" value="${item.titulo}"></td>
+            <td><input type="text" class="form-control form-control-sm campo-ref-num" value="${escaparAtributo(item.num)}"></td>
+            <td><input type="text" class="form-control form-control-sm campo-ref-titulo" value="${escaparAtributo(item.titulo)}"></td>
             <td class="text-end"><button class="btn btn-sm btn-outline-danger btn-borrar-ref" title="Eliminar fila">&times;</button></td>
         `;
         return tr;
