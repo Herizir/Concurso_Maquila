@@ -186,10 +186,22 @@
 
             <div class="sidebar-section">
                 <p class="menu-title">Menu principal</p>
+                {# La pagina activa se marca sola comparando contra la ruta actual,
+                   asi no hay que acordarse de mover la clase "active" a mano. #}
+                {% set enlaces = [
+                    ('dashboard',  'Dashboard'),
+                    ('produccion', 'Produccion'),
+                    ('inventario', 'Inventario')
+                ] %}
                 <ul class="nav nav-pills flex-column gap-1">
-                    <li class="nav-item"><a class="nav-link active" href="{{ url_for('dashboard') }}">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('produccion')}}">Produccion</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('inventario')}}">Inventario</a></li>
+                    {% for endpoint, etiqueta in enlaces %}
+                    {% set activo = request.endpoint == endpoint %}
+                    <li class="nav-item">
+                        <a class="nav-link{% if activo %} active{% endif %}"
+                           href="{{ url_for(endpoint) }}"
+                           {% if activo %}aria-current="page"{% endif %}>{{ etiqueta }}</a>
+                    </li>
+                    {% endfor %}
                 </ul>
             </div>
 
