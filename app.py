@@ -32,7 +32,12 @@ def guardar_inventario():
     if not isinstance(datos.get("referencias"), list):
         return jsonify(error="Se esperaba la lista de documentos de referencia."), 400
 
-    return jsonify(**models.guardar_inventario(datos))
+    # Las reglas de la base (P/N repetido, cantidad en cero) llegan como
+    # ValueError con un mensaje ya redactado para el usuario.
+    try:
+        return jsonify(**models.guardar_inventario(datos))
+    except ValueError as error:
+        return jsonify(error=str(error)), 400
 
 @app.route("/produccion")
 def produccion():

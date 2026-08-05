@@ -617,7 +617,10 @@
             });
 
             if (!respuesta.ok) {
-                throw new Error(`el servidor respondio ${respuesta.status}`);
+                // El servidor manda {error: "..."} cuando la base rechaza algo
+                // (P/N repetido, cantidad en cero); ese texto es mas util que el codigo.
+                const detalle = await respuesta.json().catch(() => null);
+                throw new Error(detalle?.error || `el servidor respondio ${respuesta.status}`);
             }
 
             const datos = await respuesta.json();

@@ -1,5 +1,14 @@
+# Python
 __pycache__/
 *.pyc
 venv/
+
+# Credenciales (el .env.example SI se sube, el .env NO)
 .env
+
+# Base SQLite de la version anterior
 database/*.db
+
+# Dependencias de npm: se recuperan con "npm install"
+node_modules/
+static/node_modules/
