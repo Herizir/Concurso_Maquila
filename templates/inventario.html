@@ -2,6 +2,26 @@
 
 {% block title %}inventario{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* La columna No. mide 60px: las flechas del input numerico se comen el
+       digito y lo dejan ilegible. El campo sigue aceptando solo numeros. */
+    .campo-no::-webkit-outer-spin-button,
+    .campo-no::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .campo-no {
+        -moz-appearance: textfield;
+        appearance: textfield;
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
 
 {% block contenido%}
 <main class="container-fluid py-4 px-3 px-md-4">
@@ -134,7 +154,7 @@
                         <table class="table table-hover align-middle mb-0" id="tablaMateriales">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="width:60px;">No.</th>
+                                    <th style="width:78px;">No.</th>
                                     <th>Description / Part Name</th>
                                     <th style="width:170px;">P/N</th>
                                     <th style="width:120px;">Quantity</th>
@@ -192,9 +212,8 @@
             <div class="card section-card h-100">
                 <div class="card-body">
                     <h3 class="h5 mb-3">Technical Specifications</h3>
-                    <div class="border rounded-3 p-4 text-center text-muted bg-light">
-                        N/A
-                    </div>
+                    <textarea class="form-control" id="campoEspecificaciones" rows="6"
+                              placeholder="N/A">{{ documento.especificaciones }}</textarea>
                 </div>
             </div>
         </div>
@@ -247,6 +266,10 @@
 
     let referencias = {{ referencias | tojson }};
 
+    // Se levanta con cualquier edicion y se baja al guardar; sirve para avisar
+    // antes de que salir de la pagina se lleve el trabajo sin decir nada.
+    let hayCambiosSinGuardar = false;
+
     const cuerpoMateriales = document.getElementById('cuerpoMateriales');
     const cuerpoReferencias = document.getElementById('cuerpoReferencias');
     const casePackInput = document.getElementById('casePackSize');
@@ -268,7 +291,7 @@
         const tr = document.createElement('tr');
         if (item.id != null) tr.dataset.id = item.id;
         tr.innerHTML = `
-            <td><input type="text" class="form-control form-control-sm campo-no" value="${escaparAtributo(item.no)}"></td>
+            <td><input type="number" step="1" min="1" class="form-control form-control-sm campo-no" value="${escaparAtributo(item.no)}"></td>
             <td><input type="text" class="form-control form-control-sm campo-desc" value="${escaparAtributo(item.desc)}"></td>
             <td><input type="text" class="form-control form-control-sm campo-pn" value="${escaparAtributo(item.pn)}"></td>
             <td><input type="number" step="any" class="form-control form-control-sm campo-qty" value="${item.qty}"></td>
@@ -411,10 +434,12 @@
         cuerpoMateriales.appendChild(nuevaFila);
         actualizarOpcionesUoM();
         recalcularTodo();
+        hayCambiosSinGuardar = true;
     });
 
     document.getElementById('btnAgregarRef').addEventListener('click', () => {
         cuerpoReferencias.appendChild(crearFilaReferencia({ num: '', titulo: '' }));
+        hayCambiosSinGuardar = true;
     });
 
     cuerpoMateriales.addEventListener('click', (e) => {
@@ -422,12 +447,14 @@
             e.target.closest('tr').remove();
             actualizarOpcionesUoM();
             recalcularExistencias();
+            hayCambiosSinGuardar = true;
         }
     });
 
     cuerpoReferencias.addEventListener('click', (e) => {
         if (e.target.classList.contains('btn-borrar-ref')) {
             e.target.closest('tr').remove();
+            hayCambiosSinGuardar = true;
         }
     });
 
@@ -457,13 +484,38 @@
     buscarMaterial.addEventListener('input', aplicarFiltros);
     filtroUoM.addEventListener('change', aplicarFiltros);
 
+    // Buscar y filtrar no cambian el documento, solo la vista.
+    const CONTROLES_DE_VISTA = new Set(['buscarMaterial', 'filtroUoM']);
+
+    function marcarSucio(evento) {
+        if (!CONTROLES_DE_VISTA.has(evento.target.id)) {
+            hayCambiosSinGuardar = true;
+        }
+    }
+
+    document.addEventListener('input', marcarSucio);
+    document.addEventListener('change', marcarSucio);
+
+    window.addEventListener('beforeunload', (evento) => {
+        if (!hayCambiosSinGuardar) return;
+        evento.preventDefault();
+        evento.returnValue = '';
+    });
+
     // ---------- Guardado en base de datos ----------
     const btnGuardar = document.getElementById('btnGuardarDoc');
     const avisoGuardado = document.getElementById('avisoGuardado');
 
+    let temporizadorAviso;
+
     function mostrarAviso(mensaje, tipo) {
+        clearTimeout(temporizadorAviso);
         avisoGuardado.textContent = mensaje;
         avisoGuardado.className = `small text-${tipo}`;
+        // El acuse de exito se retira solo; los errores se quedan a la vista.
+        if (tipo === 'success') {
+            temporizadorAviso = setTimeout(() => { avisoGuardado.textContent = ''; }, 4000);
+        }
     }
 
     // Los ids de los campos del encabezado, ajustes y firmas, en el mismo orden
@@ -474,6 +526,7 @@
         dcn: 'campoDCN',
         descripcion: 'campoDescripcion',
         fecha_efectiva: 'campoFecha',
+        especificaciones: 'campoEspecificaciones',
         case_pack: 'casePackSize',
         factor_stock: 'factorStockObjetivo',
         creado_por: 'campoCreadoPor',
@@ -575,6 +628,7 @@
             pintarReferencias();
             recalcularTodo();
             aplicarFiltros();
+            hayCambiosSinGuardar = false;
             mostrarAviso('Cambios guardados', 'success');
         } catch (error) {
             mostrarAviso(`No se pudo guardar: ${error.message}`, 'danger');

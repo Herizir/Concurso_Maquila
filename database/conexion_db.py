@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS documento (
     dcn            TEXT    NOT NULL DEFAULT '',
     descripcion    TEXT    NOT NULL DEFAULT '',
     fecha_efectiva TEXT    NOT NULL DEFAULT '',
+    especificaciones TEXT  NOT NULL DEFAULT 'N/A',
     case_pack      REAL    NOT NULL DEFAULT 50,
     auto_calc_case INTEGER NOT NULL DEFAULT 1,
     factor_stock   REAL    NOT NULL DEFAULT 2,
@@ -49,11 +50,20 @@ CREATE TABLE IF NOT EXISTS referencias (
 
 DOCUMENTO_SEMILLA = (
     1, 'IS60ENO', 'B', '2425', 'Enteral Only Extension Set, 60"', '2024-10-16',
+    'N/A',
     50, 1, 2,
     'Luis Padilla', '2024-10-16',
     'Ernesto Ortega', '2024-10-16',
     'Monica Echeveria', '2024-10-16',
 )
+
+# Columnas agregadas despues de la primera version del esquema. SQLite no las
+# crea con CREATE TABLE IF NOT EXISTS, hay que meterlas con ALTER TABLE.
+COLUMNAS_AGREGADAS = {
+    "documento": [
+        ("especificaciones", "TEXT NOT NULL DEFAULT 'N/A'"),
+    ],
+}
 
 # BOM inicial del documento IS60ENO Rev. B (DCN 2425).
 # Orden: numero, descripcion, parte, cantidad, unidad, cantidad_caja, existencia, minimo
@@ -99,17 +109,19 @@ def _preparar(conexion):
         conexion.execute(ESQUEMA_DOCUMENTO)
         conexion.execute(ESQUEMA_MATERIALES)
         conexion.execute(ESQUEMA_REFERENCIAS)
+        _agregar_columnas_faltantes(conexion)
 
         if _esta_vacia(conexion, "documento"):
             conexion.execute(
                 """
                 INSERT INTO documento (
                     id, part_number, revision, dcn, descripcion, fecha_efectiva,
+                    especificaciones,
                     case_pack, auto_calc_case, factor_stock,
                     creado_por, creado_fecha,
                     revisado_por, revisado_fecha,
                     aprobado_por, aprobado_fecha
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 DOCUMENTO_SEMILLA,
             )
@@ -131,6 +143,17 @@ def _preparar(conexion):
             )
 
     _esquema_listo = True
+
+
+def _agregar_columnas_faltantes(conexion):
+    """Pone al dia una base creada con un esquema anterior, sin perder datos."""
+    for tabla, columnas in COLUMNAS_AGREGADAS.items():
+        existentes = {
+            fila["name"] for fila in conexion.execute(f"PRAGMA table_info({tabla})")
+        }
+        for nombre, definicion in columnas:
+            if nombre not in existentes:
+                conexion.execute(f"ALTER TABLE {tabla} ADD COLUMN {nombre} {definicion}")
 
 
 def _esta_vacia(conexion, tabla):
