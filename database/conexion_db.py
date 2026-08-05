@@ -67,8 +67,8 @@ MATERIALES_SEMILLA = [
     (7, '6" x 6" (15cm x 15cm) Plain Pouch', '10-016-L', 1, 'ea', 50, 700, 300),
     (8, 'IS60ENO Label Insert (insert Label)', 'LBL-IS60ENO-PI', 1, 'ea', 50, 650, 300),
     (9, 'Box 10" x 8" x 6"', '10-019-L', 0.02, 'ea', 1, 1250, 500),
-    (9, 'IS60ENO Shipper Box Label (Exterior Labels)', 'LBL-IS60ENO-CI', 0.02, 'ea', 1, 30, 50),
-    (9, 'Enteral Extension Sets Instructions For Use', 'NC-EES-IFU', 0.02, 'ea', 1, 25, 50),
+    (10, 'IS60ENO Shipper Box Label (Exterior Labels)', 'LBL-IS60ENO-CI', 0.02, 'ea', 1, 30, 50),
+    (11, 'Enteral Extension Sets Instructions For Use', 'NC-EES-IFU', 0.02, 'ea', 1, 25, 50),
 ]
 
 REFERENCIAS_SEMILLA = [
