@@ -320,9 +320,12 @@
 
     function recalcularCaseQuantity(fila) {
         if (!autoCalcCheck.checked) return;
+        // Campo vacio o invalido significa "todavia no escribo", no "cero":
+        // sin esto borrar el Case Pack pone todos los Case Quantity en 0.
+        const casePack = parseFloat(casePackInput.value);
+        if (!Number.isFinite(casePack)) return;
         const qtyInput = fila.querySelector('.campo-qty');
         const caseInput = fila.querySelector('.campo-case');
-        const casePack = parseFloat(casePackInput.value) || 0;
         const qty = parseFloat(qtyInput.value) || 0;
         caseInput.value = +(qty * casePack).toFixed(7);
     }
@@ -393,11 +396,21 @@
         });
     }
 
+    // El consecutivo sale de lo que hay en pantalla, no del array del servidor:
+    // si no, cada fila nueva repite el mismo numero.
+    function siguienteNumero() {
+        const numeros = Array.from(cuerpoMateriales.querySelectorAll('.campo-no'))
+            .map(campo => parseInt(campo.value, 10))
+            .filter(Number.isFinite);
+        return numeros.length ? Math.max(...numeros) + 1 : 1;
+    }
+
     // ---------- Eventos ----------
     document.getElementById('btnAgregarFila').addEventListener('click', () => {
-        const nuevaFila = crearFilaMaterial({ no: materiales.length + 1, desc: '', pn: '', qty: 0, uom: 'ea', caseQty: 0 });
+        const nuevaFila = crearFilaMaterial({ no: siguienteNumero(), desc: '', pn: '', qty: 0, uom: 'ea', caseQty: 0 });
         cuerpoMateriales.appendChild(nuevaFila);
         actualizarOpcionesUoM();
+        recalcularTodo();
     });
 
     document.getElementById('btnAgregarRef').addEventListener('click', () => {
@@ -408,6 +421,7 @@
         if (e.target.classList.contains('btn-borrar-fila')) {
             e.target.closest('tr').remove();
             actualizarOpcionesUoM();
+            recalcularExistencias();
         }
     });
 
@@ -509,7 +523,30 @@
         }));
     }
 
+    // Un clic accidental en la "x" no se nota hasta que ya se guardo, asi que
+    // se avisa aqui, que es donde el borrado se vuelve permanente.
+    function confirmarBorrados(materialesNuevos, referenciasNuevas) {
+        const cuentaConservados = filas => filas.filter(fila => fila.id != null).length;
+        const materialesBorrados = materiales.length - cuentaConservados(materialesNuevos);
+        const referenciasBorradas = referencias.length - cuentaConservados(referenciasNuevas);
+
+        if (materialesBorrados + referenciasBorradas === 0) return true;
+
+        const partes = [];
+        if (materialesBorrados > 0) partes.push(`${materialesBorrados} material(es)`);
+        if (referenciasBorradas > 0) partes.push(`${referenciasBorradas} documento(s) de referencia`);
+        return confirm(
+            `Se eliminaran ${partes.join(' y ')} del documento.\n\n` +
+            'Esta accion no se puede deshacer. Continuar?'
+        );
+    }
+
     btnGuardar.addEventListener('click', async () => {
+        const materialesAGuardar = recolectarMateriales();
+        const referenciasAGuardar = recolectarReferencias();
+
+        if (!confirmarBorrados(materialesAGuardar, referenciasAGuardar)) return;
+
         const textoOriginal = btnGuardar.textContent;
         btnGuardar.disabled = true;
         btnGuardar.textContent = 'Guardando...';
@@ -521,8 +558,8 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     documento: recolectarDocumento(),
-                    materiales: recolectarMateriales(),
-                    referencias: recolectarReferencias()
+                    materiales: materialesAGuardar,
+                    referencias: referenciasAGuardar
                 })
             });
 
